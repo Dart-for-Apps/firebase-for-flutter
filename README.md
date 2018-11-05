@@ -20,6 +20,7 @@
 
 안드로이드와 iOS에서 보여질 앱의 전체 형태는 아래와 같습니다. 아래에서 볼 수 있듯이, 플러터를 사용하면
 iOS와 안드로이드 앱을 동시에 같은 코드로 개발할 수 있습니다.
+
 ![ios-intro](./imgs-for-doc/ios-intro.png) ![android-intro](./imgs-for-doc/android-intro.png)
 
 비슷한 동영상 강좌는 [이 링크](https://youtu.be/DqJ_KjFzL9I?list=PLOU2XLYxmsIJ7dsVN4iRuA7BT8XHzGtCr)에서 확인하실 수 있습니다.
