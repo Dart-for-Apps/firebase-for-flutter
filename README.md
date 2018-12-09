@@ -409,3 +409,19 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
 
 ![파이어스토어 연동 완료](imgs-for-doc/9-firestore.png)
 
+## 10. 유저 인터렉션 추가하기
+
+본 챕터에서는 실제로 유저가 튜표할 수 있는 기능을 추가합니다. 매우 간단한 코드로 추가할 수 있습니다.
+
+1. `lib/main.dart` 를 열고 `onTap: () => print(record)` 부분을 찾은 뒤 아래의 코드로 변경합니다.
+
+```dart
+onTap: () => record.reference.updateData({'votes': record.votes + 1})
+```
+
+2. 파일을 저장하고 핫리로드 하면 투표기능이 동작하는 것을 볼 수 있습니다.
+
+![투표 기능 완료](imgs-for-doc/10-투표기능.png)
+
+유저가 아기 이름을 탭할 때마다 클라우드 파이어스토어의 값을 매번 업데이트 한다. 클라우드 파이어스토어가 업데이트 될 때마다 reference를 참조하고 있는 클라이언트에 변경사항과 snapshot을 알리고, 플러터 앱은 이를 받아 `StreamBuilder` 를 통해 화면에 뿌려주게 된다.
+

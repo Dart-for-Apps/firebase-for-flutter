@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
        child: ListTile(
          title: Text(record.name),
          trailing: Text(record.votes.toString()),
-         onTap: () => print(record),
+         onTap: () => record.reference.updateData({'votes': record.votes + 1}),
        ),
      ),
    );
