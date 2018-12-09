@@ -356,3 +356,56 @@ buildscript {
 완료가 되면 아래와 같은 클라우드 스토어 화면을 볼 수 있습니다.
 
 ![클라우드 스토어 초기화](imgs-for-doc/8-cloud-store.png)
+
+
+
+## 9. 플러터앱과 클라우드 파이어스토어 연동하기
+
+기본 설정을 통해 플러터 앱이 클라우드 파이어스토어와 연결이 된 상태까지 진행하였습니다. 이제 파이어스토어에 저장되는 콜렉션 (`baby`) 을 사용하여 아기 이름 목록을 출력하도록 변경해봅시다.
+
+Dart 코드에서는 `Firestore.instance` 를 통해 파이어스토어에 접근할 수 있습니다. 특정 콜렉션을 얻어오고 싶은 경우에는 `Firestore.instance.collection('baby').snapshots()` 와 같은 코드를 통해 얻어 올 수 있으며, 해당 메소드는 [`stream`](https://www.dartlang.org/tutorials/language/streams) 객체를 반환합니다.
+
+받아온 stream 객체는 [`StreamBuilder`](https://docs.flutter.io/flutter/widgets/StreamBuilder-class.html) 클래스를 통해 플러터 앱에 표시할 수 있습니다.
+
+1. IDE 나 에디터에서 `lib/main.dart` 를 열고 `_buildBody` 메소드를 찾습니다.
+2. 해당 메소드의 전체 내용을 아래의 코드로 변경합니다.
+
+```dart
+Widget _buildBody(BuildContext context) {
+ return StreamBuilder<QuerySnapshot>(
+   stream: Firestore.instance.collection('baby').snapshots(),
+   builder: (context, snapshot) {
+     if (!snapshot.hasData) return LinearProgressIndicator();
+
+     return _buildList(context, snapshot.data.documents);
+   },
+ );
+}
+```
+
+> `StreamBuilder` 위젯 클래스는 데이터베이스의 업데이트를 계속해서 확인하며 데이터가 변경될 때 자동적으로 리스트를 업데이트 합니다. 데이터가 없을 경우에는 프로그레스 표시기를 화면에 출력합니다.
+
+3. 위의 코드만 변경할 경우 타입 오류가 발생합니다. 아래의 코드들을 추가로 변경합니다. `_buildList` 메소드의 두번째 파라미터를 아래의 코드처럼 변경합니다. (List<Map> 을 List<DocumentSnapshot> 으로)
+
+```dart
+Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+    ... 기존 코드들
+}
+```
+
+4. `_buildListItem` 메소드의 첫 줄을 아래의 코드로 교체합니다.
+
+```dart
+Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
+ final record = Record.fromSnapshot(data); // 변경된 부붙 fromMap 을 fromSnapshot 으로
+```
+
+5. 이제 코드의 상단부의 `dummySnapshot` 이 필요 없으므로 삭제해도 됩니다.
+6. 파일을 저장하고 핫리로드 기능을 통해 변경된 앱을 확인합니다.
+
+아래와 같이 파이어스토어에 저장된 데이터가 나올 경우 정상적으로 동작하는 상태입니다. 
+
+추가적으로 데이터베이스 내용을 변경하고 싶을 경우 앞서 클라우드 스토어 세팅 때 처럼 파이어베이스 콘솔에서 수정할 수 있으며, 즉각적으로 앱에 반영되는 것을 볼 수 있습니다.
+
+![파이어스토어 연동 완료](imgs-for-doc/9-firestore.png)
+
