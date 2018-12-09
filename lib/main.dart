@@ -48,21 +48,27 @@ class _MyHomePageState extends State<MyHomePage> {
  }
 
  Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
-   final record = Record.fromSnapshot(data);
+    final record = Record.fromSnapshot(data);
 
-   return Padding(
-     key: ValueKey(record.name),
-     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-     child: Container(
-       decoration: BoxDecoration(
-         border: Border.all(color: Colors.grey),
-         borderRadius: BorderRadius.circular(5.0),
-       ),
-       child: ListTile(
-         title: Text(record.name),
-         trailing: Text(record.votes.toString()),
-         onTap: () => record.reference.updateData({'votes': record.votes + 1}),
-       ),
+    return Padding(
+      key: ValueKey(record.name),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+        child: ListTile(
+          title: Text(record.name),
+          trailing: Text(record.votes.toString()),
+          onTap: () => Firestore.instance.runTransaction((transaction) async {
+            final freshSnapshot = await transaction.get(record.reference);
+            final fresh = Record.fromSnapshot(freshSnapshot);
+
+            await transaction
+                .update(record.reference, {'votes': fresh.votes + 1});
+          }),
+        ),
      ),
    );
  }

@@ -425,3 +425,28 @@ onTap: () => record.reference.updateData({'votes': record.votes + 1})
 
 유저가 아기 이름을 탭할 때마다 클라우드 파이어스토어의 값을 매번 업데이트 한다. 클라우드 파이어스토어가 업데이트 될 때마다 reference를 참조하고 있는 클라이언트에 변경사항과 snapshot을 알리고, 플러터 앱은 이를 받아 `StreamBuilder` 를 통해 화면에 뿌려주게 된다.
 
+## 11. 클라우드 파이어스토어의 트랜잭션 기능 사용하기
+
+현재 코드는 단일 기기에서는 정상작동 하지만 다수의 기기에서는 비정상 동작을 하는 하나의 결점이 있다. 두 개 이상의 기기에서 동시에 투표를 진행할 경우 타이밍이 잘 맞으면 투표 수가 1만 증가할 수 있다. 현재 상태의 코드는 항상 현재 투표 수 만을 참고하여 데이터베이스를 업데이트 하기 때문에, 동시에 투표 할 경우 같은 값을 읽어서 1만 더하는 문제가 발생하기 때문이다. 이러한 문제는 단일기기 테스트를 통해서 확인하기는 매우 어려운 문제이고, 다수의 기기가 있더라도 정확하게 동일한 시간내에서 테스트를 해야 하기 때문에 발견하기 어려운 문제이지만 매우 심각한 부분이다.
+
+기술적으로 **votes** 값은 여러기기에서 동시에 업데이트 가능한 *shared resource (공유 리소스)* 로, 데이터를 업데이트 할 때 (특히, 이전 값에 기초하여 새로운 값을 생성할 때) race condition 이 발생하는 문제가 있다. 이러한 값을 업데이트 할 때는 직접적으로 변경하지 말고 [트랜잭션](https://firebase.google.com/docs/firestore/manage-data/transactions) 을 사용하도록 한다.
+
+1. `lib/main.dart` 코드의 `onTap: () => record.reference.updateData({'votes': record.votes + 1})` 부분을 아래의 코드로 변경합니다.
+
+```dart
+onTap: () => Firestore.instance.runTransaction((transaction) async {
+     final freshSnapshot = await transaction.get(record.reference);
+     final fresh = Record.fromSnapshot(freshSnapshot);
+
+     await transaction
+         .update(record.reference, {'votes': fresh.votes + 1});
+   }),
+```
+
+이제 레이스 컨디션은 발생하지 않지만 투표값이 업데이트 되는데 약간의 시간이 걸리게 됩니다. 
+
+하나의 트랜잭션으로 데이터를 읽고/쓰기 하는 부분을 감싸, 클라우드 파이어스토어가 트랜잭션 형태로 데이터를 처리하도록 변경했기 때문입니다. 두 명의 유저가 동시에 작업하지 않을 경우 각각에 대해서 업데이트를 수행합니다. 트랜잭션 중간에 다른 데이터가 업데이트를 할 경우 5번의 재시도를 하고, 그래도 실패할 경우 사용자에게 실패를 알립니다.
+
+> [aggregation query](https://firebase.google.com/docs/firestore/solutions/aggregation) 를 이용해서도 해결 할 수 있습니다.
+
+최종 코드는 [lib/main.dart](lib/main.dart) 에서 확인할 수 있습니다.
