@@ -239,5 +239,85 @@ class Record {
 
 #### iOS 설정하기
 
-1. [파이어베이스 콘솔](https://console.firebase.google.com/) 에서 **Project Overview** 를 선택하고 iOS 추가 버튼을 클릭합니다. 
+1. [파이어베이스 콘솔](https://console.firebase.google.com/) 에서 **Project Overview** 를 선택하고 iOS 추가 버튼을 클릭합니다. 아래의 그림과 같은 화면을 볼 수 있습니다.
+
+![ios 등록](imgs-for-doc/7-add-ios.png)
+
+2. 여기서 중요한 부분은 **iOS bundle ID** 부분으로 다음으로 진행할 3개의 스텝을 통해서 확인할 수 있습니다.
+
+> iOS bundle ID 에 관한 내용은 [여기](https://cocoacasts.com/what-are-app-ids-and-bundle-identifiers/) 서 확인할 수 있습니다.
+
+3. 커맨드라인에서 플러터 앱 프로젝트의 최상위 폴더로 이동합니다.
+4. Mac 기준으로 `open iOS/Runner.xcworkspace` 명령을 통해 플러터 프로젝트를 xcode를 이용해 변경할 준비를 합니다.
+
+> Xcode 설정에 대한 자세한 내용은 [여기](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/AboutInformationPropertyListFiles.html) 서 확인하세요
+
+5. Xcode의 왼쪽 패널에서 최상위 레벨의 **Runner** 를 클릭 한 뒤 오른쪽 패널에서 **General** 탭을 클릭하여 아래의 그림과 같은 화면에서 **Bundle Identifier** 를 복사합니다.
+
+![bundle id 획득](imgs-for-doc/7-ios-bundle.png)
+
+6. 파이어베이스 설정창으로 다시 돌아가서 복사한 번들 아이디를 iOS bundle ID 필드에 붙여 넣고, 나머지 필드는 그대로 비워놓은 뒤 **Register app** 버튼을 클릭하여 등록 완료합니다.
+
+> 실제 상용 앱을 개발할 때의 company 부분과 appname 부분은 플러터 앱 프로젝트를 만들 때 직접 설정하면 됩니다.
+
+7. 파이어베이스 설정의 다음 화면에서 안내하는 인스트럭션을 따라서 진행한 뒤 `GoogleService-Info.plist` 설정 파일을 다운로드 합니다.
+8. Xcode 로 돌아가서 **Runner** 의 하위 폴더에 있는 **Runner** 폴더가 있는 지 확인합니다.
+9. 다운로드 받은 `GoogleService-Info.plist` 파일을 **Runner/Runner** (최상위가 아닌 하위폴더임) 로 복사합니다. (드래그 앤 드랍)
+10. Xcode 에서 확인을 묻는 다이얼로그가 나올 경우 **Finish** 버튼을 눌러 완료합니다.
+11. 파이어베이스 콘솔로 돌아가서 next 버튼을 글릭하고, 나머지 스텝은 진행하지 않아도 되므로 다 스킵하면 됩니다.
+
+위의 순서를 통해 iOS를 위한 플러터 파이어베이스 설정을 완료할 수 있습니다.
+
+#### 안드로이드 설정하기
+
+1. iOS와 같은 순서로 아래 그림과 같은 안드로이드 앱 등록 화면으로 진행합니다.
+
+![안드로이드 등록](imgs-for-doc/7-add-android.png)
+
+2. 가장 중요한 설정 값은 **Android package name** 부분으로 아래의 두 스텝을 통해 획득할 수 있습니다.
+
+> Package name 과 application id 에 관한 자세한 내용은 [이 링크](https://developer.android.com/studio/build/application-id.html) 를 통해 확인
+
+3. 플러터 앱의 최상위 폴더에서 `android/app/src/main/AndroidManifest.xml` 파일을 엽니다.
+4. `manifest` 요소에서 `package` 변수의 값을 확인합니다. 이 값이 Android package name 입니다. (주로 `com.yourcompany.yourproject` 형태). 이 값을 복사합니다.
+5. 위에서 복사한 값을 파이어베이스 다이얼로그 창에서 **Android package name** 필드에 붙여넣습니다.
+6. (안해도 되는 부분) 현재 프로젝트에서 다루지는 않을 내용이지만 파이어베이스의 추가 기능인 [Google Sign In](https://firebase.google.com/docs/auth/) 혹은 [Firebase Dynamic Links](https://firebase.google.com/products/dynamic-links/) 를 사용하고 싶을 경우 **Debug signing certificate SHA-1** 값도 설정해주어야 합니다. 해당 경우에는 [이 링크](https://developers.google.com/android/guides/client-auth) 를 참조하기 바랍니다.
+
+7. **Register App** 버튼을 눌러 등록합니다.
+8. 파이어베이스 인스트럭션에 따라 계속 진행한뒤 `google-services.json` 파일을 다운로드 합니다. 
+9. 플러터 앱의 최상위 디렉토리에서 `android/app` 디렉토리로 다운로드 받은 `google-services.json` 파일을 복사합니다.
+10. 파이어베이스 콘솔로 돌아가 나머지 단계를 모두 스킵하고 등록 완료를 합니다.
+11. 등록한 `google-services.json` 파일을 앱에서 자동으로 사용할 수 있도록 하기 위해 [Google Services Gradle plugin](https://developers.google.com/android/guides/google-services-plugin) 을 등록해야 합니다.
+12. 사용하는 에디터나 IDE 에서 `android/app/build.gradle` 파일을 열고 아래의 라인을 파일 최하단에 추가합니다.
+
+```grad
+apply plugin: 'com.google.gms.google-services'
+```
+
+13. `android/build.gradle` 파일을 열고 `buildscript` 안의 `dependencies` 항목에 아래의 한줄을 추가합니다.
+
+```gradle
+buildscript {
+   repositories {
+       // ...
+   }
+
+   dependencies {
+       // ...
+       classpath 'com.google.gms:google-services:3.2.1'   // 추가할 부분
+   }
+}
+```
+
+> 새롭게 라인을 추가할 때 기존의 classpath를 지우지 않도록 주의합니다.
+>
+> 본 예제에서 사용한 버전은 3.2.1 버전으로 더 높은 버전 번호를 쓰지 않도록 주의합니다. 버전 번호에 대한 자세한 내용은 [이 링크](https://firebase.google.com/docs/android/setup#manually_add_firebase) 를 참조합니다.
+
+위의 단계를 완료하면 안드로이드에서 파이어베이스를 사용할 수 있습니다.
+
+#### FlutterFire Plugins
+
+플러터에서 파이어베이스 기능을 이용하기 위해서는 항상 [FlutterFire Github](https://github.com/flutter/plugins/blob/master/FlutterFire.md) 를 확인하여 최신 버전을 체크 하기 바랍니다.
+
+기타 플러터 플러그인 들은 [이 링크](https://pub.dartlang.org/flutter) 에서 확인할 수 있습니다.
 
